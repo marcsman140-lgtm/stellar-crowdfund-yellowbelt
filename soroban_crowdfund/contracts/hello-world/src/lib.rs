@@ -11,6 +11,9 @@ impl CrowdfundContract {
     /// Allows a donor to contribute an amount to the pool and publishes a real-time event.
     pub fn donate(env: Env, donor: Address, amount: i128) -> i128 {
         donor.require_auth();
+        if amount <= 0 {
+            panic!("Donation amount must be positive");
+        }
         let mut total: i128 = env.storage().instance().get(&TOTAL_KEY).unwrap_or(0);
         total += amount;
         env.storage().instance().set(&TOTAL_KEY, &total);

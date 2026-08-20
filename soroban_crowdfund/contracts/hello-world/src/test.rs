@@ -7,7 +7,7 @@ fn test_crowdfund_donate_and_total() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, CrowdfundContract);
+    let contract_id = env.register(CrowdfundContract, ());
     let client = CrowdfundContractClient::new(&env, &contract_id);
 
     assert_eq!(client.get_total(), 0);
@@ -21,4 +21,30 @@ fn test_crowdfund_donate_and_total() {
     let updated_total = client.donate(&donor2, &250);
     assert_eq!(updated_total, 400);
     assert_eq!(client.get_total(), 400);
+}
+
+#[test]
+#[should_panic(expected = "Donation amount must be positive")]
+fn test_crowdfund_zero_donation_rejection() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(CrowdfundContract, ());
+    let client = CrowdfundContractClient::new(&env, &contract_id);
+
+    let donor = Address::generate(&env);
+    client.donate(&donor, &0);
+}
+
+#[test]
+#[should_panic(expected = "Donation amount must be positive")]
+fn test_crowdfund_negative_donation_rejection() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(CrowdfundContract, ());
+    let client = CrowdfundContractClient::new(&env, &contract_id);
+
+    let donor = Address::generate(&env);
+    client.donate(&donor, &-50);
 }
